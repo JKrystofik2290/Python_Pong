@@ -13,8 +13,6 @@ ball = pygame.Rect(screen_x/2 - 15, screen_y/2 - 15, 30, 30)
 player = pygame.Rect(screen_x - 20, screen_y/2 - 70, 10, 140)
 opponent = pygame.Rect(20, screen_y/2 - 70, 10, 140)
 
-# pygame.draw(surface, color, rect)
-pygame.draw(screen, (0,0,0), ball)
 
 # Main Loop
 while running:
@@ -24,7 +22,8 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-
+    # pygame.draw.Rect(surface, color, rect)
+    pygame.draw.Rect(screen,(200,200,200), player)
 
 
 
