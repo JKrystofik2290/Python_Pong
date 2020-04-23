@@ -12,6 +12,7 @@ screen = pygame.display.set_mode((screen_x,screen_y))
 pygame.display.set_caption("Python Pong")
 bg_color = pygame.Color('grey12')
 obj_color = (200,200,200)
+game_font = pygame.font.Font("freesansbold.ttf", 24)
 
 
 # init objects
@@ -25,8 +26,12 @@ player = pygame.Rect(player_pos, paddle_size)
 player_speed = 0
 opponent_pos = (20, round(screen_mid_y - paddle_size[1]/2))
 opponent = pygame.Rect(opponent_pos, paddle_size)
-# can modify opponent_speed for difficulty level
-opponent_speed = 5
+opponent_speed = 7
+volly_count = 0
+# 0 - AI doesnt move
+# 3 - easy
+# 10 - Impossible
+difficulty = 3
 
 
 # classes
@@ -36,30 +41,51 @@ class ball_speed():
         self.y = y
 ball_speed = ball_speed(7 * random.choice((1,-1)), 7 * random.choice((1,-1)))
 
+class score():
+    def __init__(self, opponent, player):
+        self.opponent = opponent
+        self.player = player
+score = score(0, 0)
+
 
 # functions
 def ball_animation():
-    global collision_on
+    global collision_on, volly_count, opponent_speed
     ball.x += ball_speed.x
     ball.y += ball_speed.y
     if ball.top <= 0 or ball.bottom >= screen_y:
         ball_speed.y *= -1
     if ball.left <= 0:
-        print('player scored!')
+        score.player += 1
         ball_reset()
     if ball.right >= screen_x:
-        print('opponent scored!')
+        score.opponent += 1
         ball_reset()
     if (ball.colliderect(player) or ball.colliderect(opponent)) and collision_on:
         ball_speed.x *= -1
+        if (player_speed > 0 and ball_speed.y < 0) or (player_speed < 0 and ball_speed.y > 0):
+            ball_speed.y *= -1
         collision_on = False
+        volly_count += 1
+        if volly_count >= 2:
+            volly_count = 0
+            opponent_speed += 1
+            if ball_speed.x >= 0:
+                ball_speed.x += 1
+            else: ball_speed.x -= 1
+            if ball_speed.y >= 0:
+                ball_speed.y += 1
+            else: ball_speed.y -= 1
     elif ball.colliderect(player) == False and ball.colliderect(opponent) == False:
         collision_on = True
 
 def ball_reset():
+    global volly_count, ball_speed, opponent_speed
+    volly_count = 0
+    opponent_speed = 7
     ball.center = (screen_mid_x, screen_mid_y)
-    ball_speed.x *= random.choice((1,-1))
-    ball_speed.y *= random.choice((1,-1))
+    ball_speed.x = 7 * random.choice((1,-1))
+    ball_speed.y = 7 * random.choice((1,-1))
 
 def player_animation():
     # player_speed & screen_y do not need to be global because I am not writing to them only reading
@@ -69,7 +95,9 @@ def player_animation():
     if player.bottom >= screen_y:
         player.bottom = screen_y
 
-def opponent_animation():
+def opponent_AI():
+    # AI difficulty?????
+    AI_choice = random.randint(1,10)
     if opponent.top > ball.y:
         opponent.top -= opponent_speed
     else: opponent.top += opponent_speed
@@ -90,8 +118,11 @@ def screen_update():
     pygame.draw.rect(screen, obj_color, player)
     pygame.draw.rect(screen, obj_color, opponent)
     pygame.draw.ellipse(screen, obj_color, ball)
+    player_score = game_font.render(f"{score.player}", False, obj_color)
+    screen.blit(player_score, (screen_mid_x + 20, screen_mid_y))
+    opponent_score = game_font.render(f"{score.opponent}", False, obj_color)
+    screen.blit(opponent_score, (screen_mid_x - opponent_score.get_rect().width - 20, screen_mid_y))
     pygame.display.flip()
-
 
 def event_handler(event):
     global player_speed
@@ -120,7 +151,7 @@ while True:
     # update animations
     ball_animation()
     player_animation()
-    opponent_animation()
+    opponent_AI()
 
     # screen update
     screen_update()
