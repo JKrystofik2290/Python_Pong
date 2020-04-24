@@ -26,12 +26,12 @@ player = pygame.Rect(player_pos, paddle_size)
 player_speed = 0
 opponent_pos = (20, round(screen_mid_y - paddle_size[1]/2))
 opponent = pygame.Rect(opponent_pos, paddle_size)
-opponent_speed = 7
+# opponent_speed is difficulty
+# easy - 5
+# normal - 6
+# impossible - 7
+opponent_speed = 6
 volly_count = 0
-# 0 - AI doesnt move
-# 3 - easy
-# 10 - Impossible
-difficulty = 3
 
 
 # classes
@@ -96,19 +96,19 @@ def player_animation():
         player.bottom = screen_y
 
 def opponent_AI():
-    # AI difficulty?????
-    AI_choice = random.randint(1,10)
-    if opponent.top > ball.y:
-        opponent.top -= opponent_speed
-    else: opponent.top += opponent_speed
-    if opponent.bottom < ball.y:
-        opponent.top += opponent_speed
-    else: opponent.top -= opponent_speed
-    if opponent.top <= 0:
-        opponent.top = 0
-    if opponent.bottom >= screen_y:
-        opponent.bottom = screen_y
-    opponent.y += opponent_speed
+    #
+    if ball_speed.x < 0:
+        if opponent.top > ball.y:
+            opponent.top -= opponent_speed
+        else: opponent.top += opponent_speed
+        if opponent.bottom < ball.y:
+            opponent.top += opponent_speed
+        else: opponent.top -= opponent_speed
+        if opponent.top <= 0:
+            opponent.top = 0
+        if opponent.bottom >= screen_y:
+            opponent.bottom = screen_y
+        opponent.y += opponent_speed
 
 def screen_update():
     # draw order matters. First is in background last is on top.
